@@ -1,38 +1,81 @@
-from turtle import Screen, Turtle
-from model_working import mark, create_turtle, model1, model2, model3
+from turtle import Screen
 
-# Setup screen
+from model_working import (
+    DEFAULT_HIT_RADIUS,
+    DEFAULT_STEP_SIZE,
+    DEFAULT_TARGET_X_RANGE,
+    DEFAULT_TARGET_Y_RANGE,
+    create_turtle,
+    mark,
+    model1,
+    model2,
+    model3,
+)
+
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+BOUNDARY_MODE = "wrap"
+MODEL3_JITTER_DEGREES = 60
+MAX_STEPS = 10_000
+BOUNDS = (
+    -(SCREEN_WIDTH // 2) + 5,
+    (SCREEN_WIDTH // 2) - 5,
+    -(SCREEN_HEIGHT // 2) + 5,
+    (SCREEN_HEIGHT // 2) - 5,
+)
+
+
 screen = Screen()
 screen.title("Turtle Race to the Target")
-screen.setup(width=800, height=600)
-screen.tracer(1)
+screen.setup(width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
+screen.tracer(0)
 
-# Create target
-target = mark()
+target = mark(x_range=DEFAULT_TARGET_X_RANGE, y_range=DEFAULT_TARGET_Y_RANGE)
 
-# Create turtles with different models
-t1 = create_turtle("turtle", "black", (0, 0))
-t2 = create_turtle("arrow", "red", (-250, 0))
-t3 = create_turtle("circle", "green", (250, 0))
-def stop(x=None,y=None):
-    global reached
-    reached = True
+participants = [
+    ("model1", create_turtle("turtle", "black", (0, 0)), model1),
+    ("model2", create_turtle("arrow", "red", (-250, 0)), model2),
+    ("model3", create_turtle("circle", "green", (250, 0)), model3),
+]
+
+running = True
+winner_name = None
+step_count = 0
 
 
+def stop_race():
+    global running
+    running = False
 
-# Race loop
-reached = False
 
-try:
-    while not reached:
+screen.listen()
+screen.onkey(stop_race, "Escape")
 
-        r1 = model1(t1, target)
-        r2 = model2(t2, target)
-        r3 = model3(t3, target)
-        if r1 or r2 or r3:
-            reached = True
+while running and winner_name is None and step_count < MAX_STEPS:
+    step_count += 1
+    for name, turtle_agent, model_fn in participants:
+        kwargs = {
+            "step_size": DEFAULT_STEP_SIZE,
+            "hit_radius": DEFAULT_HIT_RADIUS,
+            "bounds": BOUNDS,
+            "boundary_mode": BOUNDARY_MODE,
+        }
+        if model_fn is model3:
+            kwargs["jitter_degrees"] = MODEL3_JITTER_DEGREES
 
-except Exception as e:
-    print("program closed ")
+        if model_fn(turtle_agent, target, **kwargs):
+            winner_name = name
+            break
 
+    screen.update()
+
+if winner_name is not None:
+    message = f"Winner: {winner_name} in {step_count} steps."
+elif not running:
+    message = f"Race stopped after {step_count} steps."
+else:
+    message = f"No winner after {MAX_STEPS} steps."
+
+print(message)
+screen.title(f"Turtle Race to the Target | {message}")
 screen.mainloop()
