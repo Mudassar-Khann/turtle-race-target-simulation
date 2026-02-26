@@ -4,6 +4,7 @@ import random
 import statistics
 
 from model_working import (
+    AIState,
     DEFAULT_BOUNDS,
     DEFAULT_HIT_RADIUS,
     DEFAULT_STEP_SIZE,
@@ -13,6 +14,7 @@ from model_working import (
     model1,
     model2,
     model3,
+    model4_ai,
 )
 
 
@@ -58,10 +60,12 @@ def run_single_race(rng, max_steps):
         x_range=DEFAULT_TARGET_X_RANGE,
         y_range=DEFAULT_TARGET_Y_RANGE,
     )
+    ai_state = AIState()
     participants = [
         ("model1", SimTurtle((0, 0)), model1),
         ("model2", SimTurtle((-250, 0)), model2),
         ("model3", SimTurtle((250, 0)), model3),
+        ("model4", SimTurtle((0, -200)), model4_ai),
     ]
 
     for step in range(1, max_steps + 1):
@@ -75,6 +79,8 @@ def run_single_race(rng, max_steps):
             }
             if model_fn is model3:
                 kwargs["jitter_degrees"] = 60
+            if model_fn is model4_ai:
+                kwargs["ai_state"] = ai_state
 
             if model_fn(turtle_agent, target, **kwargs):
                 return name, step
@@ -84,8 +90,8 @@ def run_single_race(rng, max_steps):
 
 def run_benchmark(races, max_steps, seed):
     rng = random.Random(seed)
-    wins = {"model1": 0, "model2": 0, "model3": 0}
-    winning_steps = {"model1": [], "model2": [], "model3": []}
+    wins = {"model1": 0, "model2": 0, "model3": 0, "model4": 0}
+    winning_steps = {"model1": [], "model2": [], "model3": [], "model4": []}
     unfinished = 0
 
     for _ in range(races):
@@ -97,7 +103,7 @@ def run_benchmark(races, max_steps, seed):
         winning_steps[winner].append(steps)
 
     print(f"Races: {races} | Seed: {seed} | Max steps per race: {max_steps}")
-    for name in ("model1", "model2", "model3"):
+    for name in ("model1", "model2", "model3", "model4"):
         rate = (wins[name] / races) * 100
         avg_steps = (
             f"{statistics.mean(winning_steps[name]):.1f}"
