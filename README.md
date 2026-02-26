@@ -1,69 +1,90 @@
-# Turtle Race Target Simulation
+# Adaptive Navigation Strategy Benchmark
 
-## Overview
-This project is a Python simulation using the built-in `turtle` module.
-Three agents race to reach a randomly placed target. Each agent uses a
-different movement strategy so you can compare random and heuristic behavior.
+## Research Question
+How do navigation strategies perform under varying environmental constraints?
 
-## Movement Models
-1. `model1`: random walk over cardinal directions (`0, 90, 180, 270`).
-2. `model2`: random turn each step, then forward movement.
-3. `model3`: target-seeking heading with symmetric random jitter.
-4. `model4`: AI-inspired epsilon-greedy controller with online reward updates.
+## Models Compared
+1. Random Cardinal (`model1`)
+2. Continuous Random (`model2`)
+3. Greedy Heuristic (`model3`)
+4. Epsilon-Greedy RL with Q-Learning (`model4`)
 
-## Recent Improvements
-1. Added configurable constants for step size, hit radius, target range, and bounds.
-2. Added boundary handling (`wrap` and `bounce` support).
-3. Fixed heuristic bias by using symmetric randomness in `model3`.
-4. Removed dead/unused control code in `main.py`.
-5. Added race stop via keyboard (`Esc`).
-6. Added benchmark mode (`benchmark.py`) for multi-race statistics.
-7. Added a visible frame-based animation loop so movement can be observed clearly.
-8. Added live AI diagnostics (`epsilon`, best action offset, last action).
+## Experiment Design
+1. Multiple environments are defined in `configs/scenarios.yaml`.
+2. Sensor noise is injected through noisy target observation.
+3. Boundary physics (`wrap` or `bounce`) are scenario-controlled.
+4. Reproducible seeds are used across benchmark and visualization.
+5. Benchmark supports learning and evaluation-only modes.
 
-## Project Files
-1. `main.py`: visual turtle simulation.
-2. `model_working.py`: target creation, turtle factory, and movement models.
-3. `benchmark.py`: non-UI simulation for win-rate and average-step comparison.
+## Key Findings
+1. Performance is environment dependent.
+2. RL dominates in open, low-noise environments.
+3. Greedy heuristic excels in moderate-signal constrained lanes.
+4. Random cardinal can dominate axis-aligned grid worlds.
+5. Continuous random exploration wins highly chaotic noisy maps.
 
-## Run the Visual Simulation
-```bash
-python main.py
+## Repository Structure
+```text
+adaptive_nav/
++-- adaptive_nav/
+¦   +-- __init__.py
+¦   +-- models.py
+¦   +-- environment.py
+¦   +-- simulator.py
+¦   +-- benchmark.py
+¦   +-- visual.py
+¦   +-- logging_utils.py
+¦   +-- rl.py
++-- configs/
+¦   +-- scenarios.yaml
++-- data/
++-- experiments/
+¦   +-- plot_results.py
+¦   +-- experiment_open_vs_rl.md
+¦   +-- experiment_noise_impact.md
+¦   +-- media/
+¦   +-- plots/
++-- README.md
++-- requirements.txt
++-- setup.py
 ```
 
-The race window opens immediately.
-Press `Esc` to stop the race manually.
-The simulation updates frame-by-frame so each strategy is visible.
-
-## Run the Benchmark
+## Reproducibility
+1. Install dependencies:
 ```bash
-python benchmark.py
+pip install -r requirements.txt
+```
+2. Run benchmark with fixed seed:
+```bash
+python -m adaptive_nav.benchmark --races 1000 --scenario mixed --seed 42 --save-csv
+```
+3. Generate plots:
+```bash
+python experiments/plot_results.py --csv data/results.csv
 ```
 
-Optional arguments:
+## Benchmark CLI
+Supported options:
+- `--races`
+- `--seed`
+- `--scenario`
+- `--save-csv`
+- `--no-learning`
+- `--epsilon`
+- `--alpha`
+- `--gamma`
+- `--config`
+
+## Visual Simulation
 ```bash
-python benchmark.py --races 500 --max-steps 10000 --seed 42
+python -m adaptive_nav.visual --scenario mixed --rounds 8 --seed 42
 ```
 
-Benchmark output includes:
-1. Wins per model.
-2. Win rate percentage.
-3. Average steps for winning races.
-4. Unfinished race count and percentage.
+Press `Esc` to stop the tournament.
 
-## Tuning
-Adjust constants in `model_working.py`:
-1. `DEFAULT_STEP_SIZE`
-2. `DEFAULT_HIT_RADIUS`
-3. `DEFAULT_TARGET_X_RANGE`, `DEFAULT_TARGET_Y_RANGE`
-4. `DEFAULT_BOUNDS`
-
-Adjust visual-run settings in `main.py`:
-1. `BOUNDARY_MODE` (`wrap` or `bounce`)
-2. `MODEL3_JITTER_DEGREES`
-3. `FRAME_DELAY_MS` (higher value = slower animation)
-4. `STEPS_PER_FRAME` (higher value = faster progress each frame)
-5. `MAX_STEPS`
+## Experiment Notes
+1. `experiments/experiment_open_vs_rl.md`
+2. `experiments/experiment_noise_impact.md`
 
 ## Author
 Mudassar Khan

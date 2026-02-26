@@ -1,0 +1,123 @@
+defaults:
+  description: "Default adaptive navigation scenario"
+  boundary_mode: wrap
+  bounds: [-390, 390, -290, 290]
+  max_steps: 5000
+  target:
+    mode: random
+    x_range: [-300, 300]
+    y_range: [-220, 220]
+    grid_step: 40
+  models:
+    model1:
+      step_size: 10
+      hit_radius: 10
+      sensor_noise: 0.00
+    model2:
+      step_size: 10
+      hit_radius: 10
+      sensor_noise: 0.00
+    model3:
+      step_size: 10
+      hit_radius: 10
+      sensor_noise: 0.00
+      jitter_degrees: 60
+    model4:
+      step_size: 10
+      hit_radius: 10
+      sensor_noise: 0.00
+      action_offsets: [-30, -15, 0, 15, 30]
+      epsilon: 0.20
+      min_epsilon: 0.05
+      epsilon_decay: 0.99
+
+scenarios:
+  open_field_ai:
+    description: "Clean signal. RL should dominate."
+    boundary_mode: wrap
+    target:
+      mode: random
+      x_range: [-300, 300]
+      y_range: [-220, 220]
+    models:
+      model3:
+        jitter_degrees: 55
+      model4:
+        step_size: 11
+        action_offsets: [-30, 0, 30]
+        epsilon: 0.20
+        min_epsilon: 0.05
+        epsilon_decay: 0.99
+
+  heuristic_lane:
+    description: "Moderate signal with low jitter. Greedy model should dominate."
+    boundary_mode: bounce
+    target:
+      mode: random
+      x_range: [-260, 260]
+      y_range: [-180, 180]
+    models:
+      model3:
+        step_size: 11
+        jitter_degrees: 35
+      model4:
+        sensor_noise: 0.10
+        action_offsets: [-60, -30, 0, 30, 60]
+        epsilon: 0.45
+        min_epsilon: 0.15
+        epsilon_decay: 0.995
+
+  grid_world:
+    description: "Axis-aligned targets. Cardinal random walk is strong."
+    boundary_mode: bounce
+    target:
+      mode: axis
+      x_range: [-280, 280]
+      y_range: [-280, 280]
+      grid_step: 40
+    models:
+      model1:
+        step_size: 17
+        hit_radius: 14
+      model2:
+        step_size: 8
+      model3:
+        step_size: 5
+        hit_radius: 7
+        sensor_noise: 0.80
+        jitter_degrees: 180
+      model4:
+        step_size: 6
+        hit_radius: 8
+        sensor_noise: 0.70
+        action_offsets: [-180, -135, -90, -45, 0, 45, 90, 135, 180]
+        epsilon: 1.00
+        min_epsilon: 1.00
+        epsilon_decay: 1.00
+
+  exploration_chaos:
+    description: "Very noisy perception. Continuous random exploration is strong."
+    boundary_mode: wrap
+    target:
+      mode: random
+      x_range: [-300, 300]
+      y_range: [-220, 220]
+    models:
+      model1:
+        step_size: 9
+      model2:
+        step_size: 18
+        hit_radius: 14
+      model3:
+        step_size: 6
+        hit_radius: 7
+        sensor_noise: 0.75
+        jitter_degrees: 180
+      model4:
+        step_size: 7
+        hit_radius: 7
+        sensor_noise: 0.75
+        action_offsets: [-180, -135, -90, -45, 0, 45, 90, 135, 180]
+        epsilon: 1.00
+        min_epsilon: 1.00
+        epsilon_decay: 1.00

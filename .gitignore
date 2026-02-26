@@ -1,3 +1,6 @@
 __pycache__/
 .idea/
 *.pyc
+data/results.csv
+data/qtables/
+experiments/plots/*.png
